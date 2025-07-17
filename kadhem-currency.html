@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kadhem Currency Rates</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #222;
+    }
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px 20px;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #007bff;
+      color: #fff;
+    }
+    td {
+      text-align: center;
+    }
+    .update-time {
+      margin-top: 10px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>أسعار العملات اليوم - Kadhem</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>العملة</th>
+        <th>إلى MYR</th>
+      </tr>
+    </thead>
+    <tbody id="rates">
+      <tr><td colspan="2">جاري التحميل...</td></tr>
+    </tbody>
+  </table>
+
+  <p class="update-time" id="updated">آخر تحديث: جاري التحميل...</p>
+
+  <script>
+    async function fetchRates() {
+      try {
+        const response = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=MYR,EUR,SAR,AED,KWD,IQD");
+        const data = await response.json();
+
+        const rates = data.rates;
+        const updatedTime = new Date(data.date).toLocaleDateString("ar-MY", {
+          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        const list = {
+          "USD": "دولار أمريكي",
+          "EUR": "يورو",
+          "SAR": "ريال سعودي",
+          "AED": "درهم إماراتي",
+          "KWD": "دينار كويتي",
+          "IQD": "دينار عراقي"
+        };
+
+        const tbody = document.getElementById("rates");
+        tbody.innerHTML = "";
+
+        for (let [code, rate] of Object.entries(rates)) {
+          const row = `<tr><td>${list[code]}</td><td>${rate.toFixed(3)}</td></tr>`;
+          tbody.innerHTML += row;
+        }
+
+        document.getElementById("updated").innerText = `آخر تحديث: ${updatedTime}`;
+      } catch (error) {
+        document.getElementById("rates").innerHTML = `<tr><td colspan='2'>فشل في تحميل الأسعار</td></tr>`;
+      }
+    }
+
+    fetchRates();
+  </script>
+</body>
+</html>
